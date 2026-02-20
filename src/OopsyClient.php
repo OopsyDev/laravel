@@ -31,4 +31,16 @@ class OopsyClient
             Log::debug("Oopsy SDK: Failed to send event - {$e->getMessage()}");
         }
     }
+
+    public function sendSync(array $payload): void
+    {
+        $response = Http::withHeaders([
+            'X-Oopsy-Auth' => "Oopsy oopsy_key={$this->dsn->key}",
+            'Content-Type' => 'application/json',
+        ])
+            ->timeout(10)
+            ->post($this->dsn->getIngestUrl(), $payload);
+
+        $response->throw();
+    }
 }

@@ -10,6 +10,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
 use Oopsy\Laravel\Breadcrumbs\BreadcrumbRecorder;
+use Oopsy\Laravel\Commands\SetupCommand;
+use Oopsy\Laravel\Commands\TestCommand;
 use Oopsy\Laravel\Context\ContextCollector;
 use Oopsy\Laravel\StackTrace\StackTraceBuilder;
 
@@ -58,6 +60,13 @@ class OopsyServiceProvider extends ServiceProvider
         $this->publishes([
             __DIR__ . '/../config/oopsy.php' => config_path('oopsy.php'),
         ], 'oopsy-config');
+
+        if ($this->app->runningInConsole()) {
+            $this->commands([
+                SetupCommand::class,
+                TestCommand::class,
+            ]);
+        }
 
         if (! config('oopsy.enabled', true) || ! config('oopsy.dsn')) {
             return;

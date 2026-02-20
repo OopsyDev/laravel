@@ -1,5 +1,5 @@
 {
-    "name": "oopsy/laravel",
+    "name": "oopsydev/laravel",
     "description": "Oopsy error monitoring SDK for Laravel applications",
     "type": "library",
     "license": "MIT",

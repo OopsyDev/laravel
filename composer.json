@@ -1,0 +1,24 @@
+{
+    "name": "oopsy/laravel",
+    "description": "Oopsy error monitoring SDK for Laravel applications",
+    "type": "library",
+    "license": "MIT",
+    "require": {
+        "php": "^8.2",
+        "illuminate/support": "^11.0|^12.0",
+        "illuminate/http": "^11.0|^12.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Oopsy\\Laravel\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Oopsy\\Laravel\\OopsyServiceProvider"
+            ]
+        }
+    },
+    "minimum-stability": "stable"
+}

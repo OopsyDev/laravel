@@ -9,11 +9,14 @@ use Illuminate\Support\Facades\Log;
 
 class OopsyClient
 {
-    private Dsn $dsn;
+    private string $key;
 
-    public function __construct(Dsn $dsn)
+    private string $ingestUrl;
+
+    public function __construct(string $key, string $baseUrl)
     {
-        $this->dsn = $dsn;
+        $this->key = $key;
+        $this->ingestUrl = rtrim($baseUrl, '/') . '/api/v1/envelope';
     }
 
     public function send(array $payload): void
@@ -21,11 +24,11 @@ class OopsyClient
         try {
             Http::async()
                 ->withHeaders([
-                    'X-Oopsy-Auth' => "Oopsy oopsy_key={$this->dsn->key}",
+                    'X-Oopsy-Auth' => "Oopsy oopsy_key={$this->key}",
                     'Content-Type' => 'application/json',
                 ])
                 ->timeout(5)
-                ->post($this->dsn->getIngestUrl(), $payload);
+                ->post($this->ingestUrl, $payload);
         } catch (\Throwable $e) {
             // Never let the SDK crash the monitored app
             Log::debug("Oopsy SDK: Failed to send event - {$e->getMessage()}");
@@ -35,11 +38,11 @@ class OopsyClient
     public function sendSync(array $payload): void
     {
         $response = Http::withHeaders([
-            'X-Oopsy-Auth' => "Oopsy oopsy_key={$this->dsn->key}",
+            'X-Oopsy-Auth' => "Oopsy oopsy_key={$this->key}",
             'Content-Type' => 'application/json',
         ])
             ->timeout(10)
-            ->post($this->dsn->getIngestUrl(), $payload);
+            ->post($this->ingestUrl, $payload);
 
         $response->throw();
     }

@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace Oopsy\Laravel\Commands;
 
 use Illuminate\Console\Command;
-use Oopsy\Laravel\Dsn;
 use Oopsy\Laravel\OopsyClient;
 
 class SetupCommand extends Command
 {
-    protected $signature = 'oopsy:setup {dsn? : The Oopsy DSN string}
-                            {--dsn= : The Oopsy DSN string (alternative to argument)}';
+    protected $signature = 'oopsy:setup {key? : The Oopsy project key}
+                            {--key= : The Oopsy project key (alternative to argument)}
+                            {--url= : The Oopsy instance URL (defaults to https://oopsy.dev)}';
 
     protected $description = 'Configure the Oopsy SDK for this Laravel application';
 
@@ -29,27 +29,34 @@ class SetupCommand extends Command
             $this->components->info('Config file already exists.');
         }
 
-        // Resolve DSN: argument > option > existing env > prompt
-        $dsn = $this->argument('dsn')
-            ?? $this->option('dsn')
-            ?? $this->ask('Enter your Oopsy DSN (found in your project settings)');
+        // Resolve key: argument > option > prompt
+        $key = $this->argument('key')
+            ?? $this->option('key')
+            ?? $this->ask('Enter your Oopsy project key (found in your project settings)');
 
-        if (! $dsn) {
-            $this->components->error('No DSN provided. Run this command again with your DSN.');
+        if (! $key) {
+            $this->components->error('No key provided. Run this command again with your project key.');
 
             return self::FAILURE;
         }
 
-        // Write DSN to .env
-        $this->writeDsnToEnv($dsn);
-        $this->components->info('DSN written to .env');
+        $url = $this->option('url') ?? 'https://oopsy.dev';
 
-        // Clear cached config so the new DSN takes effect
+        // Write to .env
+        $this->writeEnvVar('OOPSY_KEY', $key);
+        $this->components->info('OOPSY_KEY written to .env');
+
+        if ($url !== 'https://oopsy.dev') {
+            $this->writeEnvVar('OOPSY_URL', $url);
+            $this->components->info('OOPSY_URL written to .env');
+        }
+
+        // Clear cached config so the new values take effect
         $this->callSilently('config:clear');
 
         // Update runtime config + rebuild the client singleton
-        config(['oopsy.dsn' => $dsn]);
-        $this->laravel->instance(OopsyClient::class, new OopsyClient(Dsn::parse($dsn)));
+        config(['oopsy.key' => $key, 'oopsy.url' => $url]);
+        $this->laravel->instance(OopsyClient::class, new OopsyClient($key, $url));
 
         // Send test event
         $this->newLine();
@@ -60,22 +67,22 @@ class SetupCommand extends Command
         return self::SUCCESS;
     }
 
-    private function writeDsnToEnv(string $dsn): void
+    private function writeEnvVar(string $name, string $value): void
     {
         $envPath = base_path('.env');
 
         if (! file_exists($envPath)) {
-            file_put_contents($envPath, "OOPSY_DSN={$dsn}\n");
+            file_put_contents($envPath, "{$name}={$value}\n");
 
             return;
         }
 
         $contents = file_get_contents($envPath);
 
-        if (preg_match('/^OOPSY_DSN=.*/m', $contents)) {
-            $contents = preg_replace('/^OOPSY_DSN=.*/m', "OOPSY_DSN={$dsn}", $contents);
+        if (preg_match("/^{$name}=.*/m", $contents)) {
+            $contents = preg_replace("/^{$name}=.*/m", "{$name}={$value}", $contents);
         } else {
-            $contents = rtrim($contents, "\n") . "\n\nOOPSY_DSN={$dsn}\n";
+            $contents = rtrim($contents, "\n") . "\n\n{$name}={$value}\n";
         }
 
         file_put_contents($envPath, $contents);

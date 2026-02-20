@@ -3,14 +3,25 @@
 return [
     /*
     |--------------------------------------------------------------------------
-    | DSN (Data Source Name)
+    | Key
     |--------------------------------------------------------------------------
     |
-    | The DSN tells the SDK where to send error events.
-    | Format: http://{key}@{host}/api/v1/projects/{project_id}
+    | The project DSN key used to authenticate error events.
+    | Found in your project settings on the Oopsy dashboard.
     |
     */
-    'dsn' => env('OOPSY_DSN'),
+    'key' => env('OOPSY_KEY'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | URL
+    |--------------------------------------------------------------------------
+    |
+    | The base URL of the Oopsy instance to send events to.
+    | Only change this if you are self-hosting Oopsy.
+    |
+    */
+    'url' => env('OOPSY_URL', 'https://oopsy.dev'),
 
     /*
     |--------------------------------------------------------------------------

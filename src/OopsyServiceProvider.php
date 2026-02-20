@@ -24,13 +24,13 @@ class OopsyServiceProvider extends ServiceProvider
         $this->app->singleton(BreadcrumbRecorder::class, fn () => new BreadcrumbRecorder);
 
         $this->app->singleton(OopsyClient::class, function () {
-            $dsnString = config('oopsy.dsn');
+            $key = config('oopsy.key');
 
-            if (! $dsnString) {
+            if (! $key) {
                 return null;
             }
 
-            return new OopsyClient(Dsn::parse($dsnString));
+            return new OopsyClient($key, config('oopsy.url', 'https://oopsy.dev'));
         });
 
         $this->app->singleton(EventBuilder::class, function () {
@@ -68,7 +68,7 @@ class OopsyServiceProvider extends ServiceProvider
             ]);
         }
 
-        if (! config('oopsy.enabled', true) || ! config('oopsy.dsn')) {
+        if (! config('oopsy.enabled', true) || ! config('oopsy.key')) {
             return;
         }
 

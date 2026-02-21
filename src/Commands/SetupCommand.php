@@ -20,15 +20,6 @@ class SetupCommand extends Command
         $this->info('Setting up Oopsy error monitoring...');
         $this->newLine();
 
-        // Publish config if not already present
-        if (! file_exists(config_path('oopsy.php'))) {
-            $this->components->task('Publishing config', function () {
-                $this->callSilently('vendor:publish', ['--tag' => 'oopsy-config']);
-            });
-        } else {
-            $this->components->info('Config file already exists.');
-        }
-
         // Resolve key: argument > option > prompt
         $key = $this->argument('key')
             ?? $this->option('key')

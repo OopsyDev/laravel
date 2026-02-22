@@ -1,8 +1,28 @@
 {
     "name": "oopsydev/laravel",
-    "description": "Oopsy error monitoring SDK for Laravel applications",
+    "description": "Lightweight error monitoring for Laravel — captures PHP exceptions with full stack traces, code context, breadcrumbs, and sends them to Oopsy. Two-line setup, zero config.",
     "type": "library",
     "license": "MIT",
+    "keywords": [
+        "laravel",
+        "error-monitoring",
+        "error-tracking",
+        "exception-handler",
+        "exception-tracking",
+        "bug-tracking",
+        "sentry-alternative",
+        "flare-alternative",
+        "stack-trace",
+        "debugging",
+        "error-reporting",
+        "monitoring",
+        "oopsy"
+    ],
+    "homepage": "https://oopsy.dev",
+    "support": {
+        "issues": "https://github.com/OopsyDev/laravel/issues",
+        "source": "https://github.com/OopsyDev/laravel"
+    },
     "require": {
         "php": "^8.2",
         "illuminate/support": "^11.0|^12.0",

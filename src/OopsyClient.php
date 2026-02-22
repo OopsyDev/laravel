@@ -13,6 +13,8 @@ class OopsyClient
 
     private string $ingestUrl;
 
+    private array $buffer = [];
+
     public function __construct(string $key, string $baseUrl)
     {
         $this->key = $key;
@@ -21,17 +23,25 @@ class OopsyClient
 
     public function send(array $payload): void
     {
-        try {
-            Http::async()
-                ->withHeaders([
+        $this->buffer[] = $payload;
+    }
+
+    public function flush(): void
+    {
+        $payloads = $this->buffer;
+        $this->buffer = [];
+
+        foreach ($payloads as $payload) {
+            try {
+                Http::withHeaders([
                     'X-Oopsy-Auth' => "Oopsy oopsy_key={$this->key}",
                     'Content-Type' => 'application/json',
                 ])
-                ->timeout(5)
-                ->post($this->ingestUrl, $payload);
-        } catch (\Throwable $e) {
-            // Never let the SDK crash the monitored app
-            Log::debug("Oopsy SDK: Failed to send event - {$e->getMessage()}");
+                    ->timeout(5)
+                    ->post($this->ingestUrl, $payload);
+            } catch (\Throwable $e) {
+                Log::debug("Oopsy SDK: Failed to send event - {$e->getMessage()}");
+            }
         }
     }
 

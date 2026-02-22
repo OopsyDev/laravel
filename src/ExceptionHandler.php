@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Oopsy\Laravel;
 
+use Illuminate\Foundation\Bootstrap\HandleExceptions;
 use Throwable;
 
 class ExceptionHandler
@@ -12,14 +13,22 @@ class ExceptionHandler
 
     private EventBuilder $eventBuilder;
 
+    public ?string $reservedMemory;
+
     public function __construct(OopsyClient $client, EventBuilder $eventBuilder)
     {
         $this->client = $client;
         $this->eventBuilder = $eventBuilder;
+        $this->reservedMemory = str_repeat('x', 32768);
     }
 
     public function handle(Throwable $exception): void
     {
+        // Free reserved memory if Laravel's is already freed (OOM scenario)
+        if (HandleExceptions::$reservedMemory === null) {
+            $this->reservedMemory = null;
+        }
+
         try {
             // Check if this exception should be ignored
             if ($this->shouldIgnore($exception)) {

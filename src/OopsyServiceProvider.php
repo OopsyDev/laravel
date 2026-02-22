@@ -4,8 +4,15 @@ declare(strict_types=1);
 
 namespace Oopsy\Laravel;
 
+use Illuminate\Contracts\Console\Kernel as ConsoleKernelContract;
 use Illuminate\Contracts\Debug\ExceptionHandler as ExceptionHandlerContract;
+use Illuminate\Contracts\Http\Kernel as HttpKernelContract;
+use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
+use Illuminate\Foundation\Exceptions\Handler;
+use Illuminate\Foundation\Http\Kernel as HttpKernel;
 use Illuminate\Log\Events\MessageLogged;
+use Illuminate\Queue\Events\Looping;
+use Illuminate\Queue\Events\WorkerStopping;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
@@ -53,6 +60,13 @@ class OopsyServiceProvider extends ServiceProvider
                 $this->app->make(EventBuilder::class),
             );
         });
+
+        if (! config('oopsy.enabled', true) || ! config('oopsy.key')) {
+            return;
+        }
+
+        $this->registerExceptionReporter();
+        $this->registerFlushHooks();
     }
 
     public function boot(): void
@@ -72,22 +86,65 @@ class OopsyServiceProvider extends ServiceProvider
             return;
         }
 
-        $this->registerExceptionReporter();
         $this->registerBreadcrumbs();
     }
 
     private function registerExceptionReporter(): void
     {
-        $handler = $this->app->make(ExceptionHandlerContract::class);
-
-        if (method_exists($handler, 'reportable')) {
-            $handler->reportable(function (\Throwable $e) {
-                $oopsyHandler = $this->app->make(ExceptionHandler::class);
-
-                if ($oopsyHandler) {
-                    $oopsyHandler->handle($e);
+        $this->callAfterResolving(
+            ExceptionHandlerContract::class,
+            function (ExceptionHandlerContract $handler) {
+                if (! $handler instanceof Handler) {
+                    return;
                 }
-            })->stop(false);
+
+                $handler->reportable(function (\Throwable $e) {
+                    $oopsyHandler = $this->app->make(ExceptionHandler::class);
+
+                    if ($oopsyHandler) {
+                        $oopsyHandler->handle($e);
+                    }
+                })->stop(false);
+            }
+        );
+    }
+
+    private function registerFlushHooks(): void
+    {
+        // Flush after HTTP response is sent
+        $this->callAfterResolving(
+            HttpKernelContract::class,
+            function (HttpKernelContract $kernel) {
+                if ($kernel instanceof HttpKernel) {
+                    $kernel->whenRequestLifecycleIsLongerThan(-1, fn () => $this->flushClient());
+                }
+            }
+        );
+
+        // Flush after CLI command completes
+        $this->callAfterResolving(
+            ConsoleKernelContract::class,
+            function (ConsoleKernelContract $kernel) {
+                if ($kernel instanceof ConsoleKernel) {
+                    $kernel->whenCommandLifecycleIsLongerThan(-1, fn () => $this->flushClient());
+                }
+            }
+        );
+
+        // Flush between queue jobs and on worker shutdown
+        Event::listen([Looping::class, WorkerStopping::class], fn () => $this->flushClient());
+    }
+
+    private function flushClient(): void
+    {
+        try {
+            $client = $this->app->make(OopsyClient::class);
+
+            if ($client) {
+                $client->flush();
+            }
+        } catch (\Throwable) {
+            // Never crash the monitored app
         }
     }
 

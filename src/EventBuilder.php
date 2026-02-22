@@ -46,9 +46,11 @@ class EventBuilder
             'occurred_at' => now()->toIso8601String(),
         ];
 
-        // Add request context if available
+        // Add request context if available (middleware-stored or collected on-demand)
         if (app()->bound('oopsy.request_context')) {
             $payload['request_data'] = app('oopsy.request_context');
+        } elseif (app()->runningInConsole() === false && app()->bound('request')) {
+            $payload['request_data'] = $this->contextCollector->collectRequest(app('request'));
         }
 
         return $payload;

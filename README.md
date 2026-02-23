@@ -60,7 +60,9 @@ This sends a test exception to confirm connectivity.
 
 ## AI/MCP Integration
 
-Oopsy provides an [MCP server](https://oopsy.dev) that integrates with Claude Code, Cursor, and other MCP-compatible tools — allowing AI assistants to browse your errors and help debug them directly from your editor.
+Oopsy provides an [MCP server](https://oopsy.dev/docs/mcp) that integrates with Claude Code, Cursor, and other MCP-compatible tools — allowing AI assistants to browse your errors and help debug them directly from your editor.
+
+AI-friendly documentation is available at [oopsy.dev/llms.txt](https://oopsy.dev/llms.txt).
 
 ## Requirements
 

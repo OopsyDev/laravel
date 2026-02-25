@@ -1,8 +1,27 @@
-# Oopsy for Laravel
+<p align="center">
+  <a href="https://oopsy.dev">
+    <img src="https://oopsy.dev/images/og-default.png" alt="Oopsy — Error monitoring for Laravel" width="600">
+  </a>
+</p>
 
-Lightweight error monitoring for Laravel applications. Captures PHP exceptions with full stack traces, code context, and breadcrumbs — then sends them to [Oopsy](https://oopsy.dev) for grouping, alerting, and debugging.
+<p align="center">
+  <a href="https://packagist.org/packages/oopsydev/laravel"><img src="https://img.shields.io/packagist/v/oopsydev/laravel.svg?style=flat-square&label=version" alt="Latest Version"></a>
+  <a href="https://packagist.org/packages/oopsydev/laravel"><img src="https://img.shields.io/packagist/dt/oopsydev/laravel.svg?style=flat-square" alt="Total Downloads"></a>
+  <a href="https://packagist.org/packages/oopsydev/laravel"><img src="https://img.shields.io/packagist/php-v/oopsydev/laravel.svg?style=flat-square" alt="PHP Version"></a>
+  <a href="https://packagist.org/packages/oopsydev/laravel"><img src="https://img.shields.io/packagist/l/oopsydev/laravel.svg?style=flat-square" alt="License"></a>
+</p>
 
-**Two-line setup. Zero config. Never crashes your app.**
+<p align="center">
+  Lightweight error monitoring for Laravel applications.<br>
+  Captures PHP exceptions with full stack traces, code context, and breadcrumbs —<br>
+  then sends them to <a href="https://oopsy.dev">Oopsy</a> for grouping, alerting, and debugging.
+</p>
+
+<p align="center">
+  <b>Two-line setup. Zero config. Never crashes your app.</b>
+</p>
+
+---
 
 ## Installation
 
@@ -20,11 +39,13 @@ That's it. The SDK auto-registers via Laravel's package discovery. No service pr
 
 ## What It Captures
 
-- **Stack traces** with surrounding code context for every frame
-- **Request context** — HTTP method, URL, headers, body, query parameters
-- **User context** — authenticated user ID, email, name
-- **Environment** — PHP version, Laravel version, server details
-- **Breadcrumbs** — database queries, log entries, and HTTP requests leading up to the error
+| | |
+|---|---|
+| **Stack traces** | Surrounding code context for every frame |
+| **Request context** | HTTP method, URL, headers, body, query parameters |
+| **User context** | Authenticated user ID, email, name |
+| **Environment** | PHP version, Laravel version, server details |
+| **Breadcrumbs** | Database queries, log entries, and HTTP requests leading up to the error |
 
 ## How It Works
 
@@ -58,7 +79,7 @@ php artisan oopsy:test
 
 This sends a test exception to confirm connectivity.
 
-## AI/MCP Integration
+## AI / MCP Integration
 
 Oopsy provides an [MCP server](https://oopsy.dev/docs/mcp) that integrates with Claude Code, Cursor, and other MCP-compatible tools — allowing AI assistants to browse your errors and help debug them directly from your editor.
 
@@ -84,6 +105,16 @@ Start free at [oopsy.dev](https://oopsy.dev) — no credit card required.
 - [Oopsy vs Sentry](https://oopsy.dev/compare/sentry) — purpose-built for Laravel vs generic platform
 - [Oopsy vs Flare](https://oopsy.dev/compare/flare) — full-stack (PHP + JS) vs PHP-only
 - [Oopsy vs Nightwatch](https://oopsy.dev/compare/nightwatch) — error monitoring vs APM
+
+## Add the Badge
+
+Show that your app is monitored by Oopsy:
+
+[![monitored by: oopsy](https://oopsy.dev/images/badge-monitored.svg)](https://oopsy.dev)
+
+```markdown
+[![monitored by: oopsy](https://oopsy.dev/images/badge-monitored.svg)](https://oopsy.dev)
+```
 
 ## License
 
